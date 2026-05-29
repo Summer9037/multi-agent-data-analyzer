@@ -1,0 +1,34 @@
+# 可选：如果你的本机没装 PostgreSQL，可以用这个 compose 拉起一个 PG 容器。
+# 已装本机 PG 的话忽略此文件。
+#
+# 启动：docker-compose up -d
+# 停止：docker-compose down
+# 完全清理（含数据）：docker-compose down -v
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: auto_analysis_pg
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: auto_analysis
+      # 显式 UTF-8 locale + IANA 时区，避免中文 Windows 主机 PG 客户端的编码地狱
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+      TZ: Asia/Shanghai
+    ports:
+      # host:5433 → container:5432，避免与本机 PG（默认 5432）冲突
+      - "5433:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pg_data:

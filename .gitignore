@@ -1,0 +1,60 @@
+# === Secrets ===
+.env
+.env.local
+.env.*.local
+.streamlit/secrets.toml
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# === 项目产物（不入库） ===
+# 原始数据（GB 级别，自己下载）
+data/*.csv
+data/*.parquet
+
+# 运行时产物（每次 run 都不同，没必要入库）
+outputs/reports/*.md
+outputs/charts/**/*.html
+outputs/models/
+
+# 但保留目录结构标记
+!outputs/.gitkeep
+!outputs/reports/.gitkeep
+!outputs/charts/.gitkeep
+!data/.gitkeep
+
+# === 日志 ===
+*.log
+logs/
+
+# === IDE ===
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# === OS ===
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === Notebook ===
+.ipynb_checkpoints/
+
+# === 临时调试文件 ===
+scratch/
+tmp/
+*.tmp
