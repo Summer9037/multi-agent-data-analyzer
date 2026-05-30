@@ -20,7 +20,7 @@
 
 ## 📝 简历段落
 
-> **基于 Claude API 的多 Agent 自动化数据分析系统**（个人项目，Python / LangGraph / Anthropic Claude / PostgreSQL / Streamlit）：基于 LangGraph `StateGraph` 编排 Planner / Explorer / Cleaner / Modeler / Visualizer / Reporter 六个 Agent，通过 Claude `tool_use` 调度 30+ 个原子数据工具函数，将自然语言需求自动转化为 EDA → 清洗 → 建模 → 可视化 → 报告全流程；对千万级阿里广告点击数据完成分层采样 ETL 与 CTR 二分类建模；利用 Anthropic prompt caching 三层缓存策略将 input token 消耗降低约 60%；Streamlit 前端基于 LangGraph 流式事件实现 Agent 执行轨迹实时可视化与浅蓝商务风图表嵌入。
+> **基于 Claude API 的多 Agent 自动化数据分析系统**（个人项目，Python / LangGraph / Anthropic Claude / PostgreSQL / Streamlit）：基于 LangGraph `StateGraph` + `conditional_edges` 编排 Planner / Explorer / Cleaner / Modeler / Visualizer / Reporter 六个 Agent，通过 Claude `tool_use` 调度 25+ 个原子数据工具函数（DB / EDA / 清洗 / 建模 / 可视化 5 大类），将自然语言需求自动转化为 EDA → 清洗 → 建模 → 可视化 → 报告全流程；对千万级阿里广告点击数据完成分层采样 ETL 与 CTR 二分类建模；利用 Anthropic prompt caching 三层缓存策略实测 cache 命中率 40-60%；Streamlit 前端基于 LangGraph `stream(stream_mode="updates")` 实现 Agent 执行轨迹实时可视化与浅蓝商务风图表嵌入。
 
 **面试可深挖的技术点**：
 - LangGraph `conditional_edges` 按 task_type 动态路由（eda_only / modeling / comparison）
@@ -35,7 +35,7 @@
 
 ![demo](ui/assets/demo.gif)
 
-> *待录制：Streamlit 上 6 个 Agent 卡片依次变绿 + 缓存命中率滚动 + 报告生成。*
+> 30 秒一次完整工作流：自然语言 query → Planner / Explorer / Cleaner / Modeler / Visualizer / Reporter 六个 Agent 卡片实时变绿 → 商务蓝 Plotly 图嵌入 → Markdown 报告生成 + 下载。
 
 ---
 
@@ -104,7 +104,7 @@ modeler ──── Sonnet 4.6（LR + LightGBM）
 
 | 亮点 | 说明 |
 |---|---|
-| **多 Agent 编排** | LangGraph `StateGraph` + `conditional_edges` 按需路由（EDA-only 跳过 Cleaner/Modeler，节省 30-40% token） |
+| **多 Agent 编排** | LangGraph `StateGraph` + `conditional_edges` 按需路由（EDA-only 路径跳过 Cleaner/Modeler 节点，节省 ~30% token） |
 | **Claude tool_use 多轮循环** | `app/agents/base.py` 统一封装，支持 tool 并行执行、消息历史拼接、自动停止 |
 | **结构化输出契约** | Planner / Cleaner / Modeler 各自有 `submit_*` 工具，schema 在 `input_schema` 强约束，告别脆性 JSON 解析 |
 | **三层 Prompt Caching** | System prompt / Tools schema / Data context 三层独立 `cache_control: ephemeral`，实测 cache hit ~40-60% |
@@ -125,7 +125,7 @@ project_root/
 │   ├── llm/
 │   │   ├── client.py            # Anthropic 客户端单例 + base_url 注入
 │   │   └── cache.py             # with_cache() / cache_tools()
-│   ├── tools/                   # 30+ 工具函数（4 大类）
+│   ├── tools/                   # 25+ 工具函数（DB / EDA / Cleaning / Modeling / Viz 5 大类 + submit_* 契约）
 │   │   ├── db.py                # list_tables / sample_table / query_sql
 │   │   ├── eda.py               # profile / missing / numeric / cat / corr
 │   │   ├── cleaning.py          # init/drop_nulls/impute/cap/encode/persist
